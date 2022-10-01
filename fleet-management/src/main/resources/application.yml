@@ -1,0 +1,19 @@
+
+logging.level:
+  org.springframework.web: DEBUG
+  com.vmware.tanzulabs.wehaul.fleetmanagement: DEBUG
+
+server:
+  port: 9090
+
+spring:
+
+  application:
+    name: fleet-management
+
+management:
+  endpoints:
+    web.exposure.include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

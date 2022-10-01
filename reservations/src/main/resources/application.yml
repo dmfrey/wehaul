@@ -1,0 +1,19 @@
+
+logging.level:
+  org.springframework.web: DEBUG
+  com.vmware.tanzulabs.wehaul.com.vmware.tanzulabs.wehaul.reservations: DEBUG
+
+server:
+  port: 9091
+
+spring:
+
+  application:
+    name: reservations
+
+management:
+  endpoints:
+    web.exposure.include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS
