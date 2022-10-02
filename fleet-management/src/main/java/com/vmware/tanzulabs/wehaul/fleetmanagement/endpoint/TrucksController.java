@@ -1,30 +1,65 @@
 package com.vmware.tanzulabs.wehaul.fleetmanagement.endpoint;
 
-import com.vmware.tanzulabs.wehaul.fleetmanagement.domain.Truck;
 import com.vmware.tanzulabs.wehaul.fleetmanagement.domain.TruckNotInInspectionException;
 import com.vmware.tanzulabs.wehaul.fleetmanagement.domain.TruckUnavailableForInspectionException;
+import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.CompleteInspectionUsecase;
+import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.CreateTruckUsecase;
+import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.GetAllTrucksUsecase;
+import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.StartInspectionUsecase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
 @RestController
-public class TrucksController {
+class TrucksController {
+
+    private final GetAllTrucksUsecase getAllTrucksUsecase;
+    private final CreateTruckUsecase createTruckUsecase;
+    private final StartInspectionUsecase startInspectionUsecase;
+    private final CompleteInspectionUsecase completeInspectionUsecase;
+
+    TrucksController(
+            final GetAllTrucksUsecase getAllTrucksUsecase,
+            final CreateTruckUsecase createTruckUsecase,
+            final StartInspectionUsecase startInspectionUsecase,
+            final CompleteInspectionUsecase completeInspectionUsecase
+    ) {
+
+        this.getAllTrucksUsecase = getAllTrucksUsecase;
+        this.createTruckUsecase = createTruckUsecase;
+        this.startInspectionUsecase = startInspectionUsecase;
+        this.completeInspectionUsecase = completeInspectionUsecase;
+
+    }
 
     @GetMapping( "/trucks" )
     @CrossOrigin
-    List<Truck> getAllTrucks() {
+    List<TruckResponse> getAllTrucks() {
 
-        throw new UnsupportedOperationException();
+        return this.getAllTrucksUsecase.execute().stream()
+                .map( truck -> new TruckResponse( truck.id(), truck.status().name() ) )
+                .toList();
     }
+
+    record TruckResponse( Integer id, String status ) { }
 
     @PostMapping( "/trucks" )
     @CrossOrigin
     ResponseEntity<?> createNewTrucks() {
 
-        throw new UnsupportedOperationException();
+        var created = this.createTruckUsecase.execute();
+
+        return ResponseEntity
+                .created(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path( "/{truckId}" ).buildAndExpand( created )
+                                .toUri()
+                )
+                .build();
     }
 
     @PutMapping( "/trucks/{truckId}/startInspection" )
@@ -33,7 +68,10 @@ public class TrucksController {
 
         try {
 
-            throw new UnsupportedOperationException();
+            this.startInspectionUsecase.execute( truckId );
+
+            return ResponseEntity.accepted()
+                    .build();
 
         } catch( TruckUnavailableForInspectionException e ) {
 
@@ -48,7 +86,10 @@ public class TrucksController {
 
         try {
 
-            throw new UnsupportedOperationException();
+            this.completeInspectionUsecase.execute( truckId );
+
+            return ResponseEntity.accepted()
+                    .build();
 
         } catch( TruckNotInInspectionException e ) {
 

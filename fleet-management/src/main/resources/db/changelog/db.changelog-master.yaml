@@ -1,0 +1,21 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 1
+      author: developer
+      changes:
+        - createTable:
+            tableName: truck
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
