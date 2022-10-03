@@ -34,9 +34,9 @@ class GetAllTrucksServiceTests {
 
         when( this.mockGetAllTrucksPort.getAll() ).thenReturn( List.of( new Truck( fakeId, fakeStatus ) ) );
 
-        List<Truck> actual = this.subject.execute();
+        var actual = this.subject.execute();
 
-        Truck expected = new Truck( fakeId, fakeStatus );
+        var expected = new Truck( fakeId, fakeStatus );
 
         assertThat( actual )
                 .hasSize( 1 )

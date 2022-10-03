@@ -4,10 +4,7 @@ import com.vmware.tanzulabs.wehaul.fleetmanagement.domain.Status;
 import com.vmware.tanzulabs.wehaul.fleetmanagement.domain.Truck;
 import com.vmware.tanzulabs.wehaul.fleetmanagement.domain.TruckNotInInspectionException;
 import com.vmware.tanzulabs.wehaul.fleetmanagement.domain.TruckUnavailableForInspectionException;
-import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.CompleteInspectionUsecase;
-import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.CreateTruckUsecase;
-import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.GetAllTrucksUsecase;
-import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.StartInspectionUsecase;
+import com.vmware.tanzulabs.wehaul.fleetmanagement.usecases.in.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +31,9 @@ public class TrucksControllerTests {
     GetAllTrucksUsecase mockGetAllTrucksUsecase;
 
     @MockBean
+    LookupTruckUsecase mockLookupTruckUsecase;
+
+    @MockBean
     CreateTruckUsecase mockCreateTrruckUsecase;
 
     @MockBean
@@ -56,7 +56,26 @@ public class TrucksControllerTests {
 
         verify( this.mockGetAllTrucksUsecase ).execute();
         verifyNoMoreInteractions( this.mockGetAllTrucksUsecase );
-        verifyNoInteractions( this.mockCreateTrruckUsecase, this.mockStartInspectionUsecase, this.mockCompleteInspectionUsecase );
+        verifyNoInteractions( this.mockLookupTruckUsecase, this.mockCreateTrruckUsecase, this.mockStartInspectionUsecase, this.mockCompleteInspectionUsecase );
+
+    }
+
+    @Test
+    @DisplayName( "Get Truck by Id, Verify HTTP OK and Truck Returned" )
+    void whenGetTruckById_verifyOkAndTruckReturned() throws Exception {
+
+        var fakeId = 1;
+        when( this.mockLookupTruckUsecase.execute( fakeId ) ).thenReturn( new Truck( fakeId, Status.AVAILABLE ) );
+
+        this.mockMvc.perform( MockMvcRequestBuilders.get( "/trucks/{truckId}", fakeId ) )
+                .andDo( print() )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( fakeId ) )
+                .andExpect( jsonPath( "$.status").value( "AVAILABLE" ) );
+
+        verify( this.mockLookupTruckUsecase ).execute( fakeId );
+        verifyNoMoreInteractions( this.mockLookupTruckUsecase );
+        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockCreateTrruckUsecase, this.mockStartInspectionUsecase, this.mockCompleteInspectionUsecase );
 
     }
 
@@ -73,7 +92,7 @@ public class TrucksControllerTests {
 
         verify( this.mockCreateTrruckUsecase ).execute();
         verifyNoMoreInteractions( this.mockCreateTrruckUsecase );
-        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockStartInspectionUsecase, this.mockCompleteInspectionUsecase );
+        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockLookupTruckUsecase, this.mockStartInspectionUsecase, this.mockCompleteInspectionUsecase );
 
     }
 
@@ -88,7 +107,7 @@ public class TrucksControllerTests {
 
         verify( this.mockStartInspectionUsecase ).execute( fakeId );
         verifyNoMoreInteractions( this.mockStartInspectionUsecase );
-        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockCreateTrruckUsecase, this.mockCompleteInspectionUsecase );
+        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockLookupTruckUsecase, this.mockCreateTrruckUsecase, this.mockCompleteInspectionUsecase );
 
     }
 
@@ -107,7 +126,7 @@ public class TrucksControllerTests {
 
         verify( this.mockStartInspectionUsecase ).execute( fakeId );
         verifyNoMoreInteractions( this.mockStartInspectionUsecase );
-        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockCreateTrruckUsecase, this.mockCompleteInspectionUsecase );
+        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockLookupTruckUsecase, this.mockCreateTrruckUsecase, this.mockCompleteInspectionUsecase );
 
     }
 
@@ -122,7 +141,7 @@ public class TrucksControllerTests {
 
         verify( this.mockCompleteInspectionUsecase ).execute( fakeId );
         verifyNoMoreInteractions( this.mockCompleteInspectionUsecase );
-        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockCreateTrruckUsecase, this.mockStartInspectionUsecase );
+        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockLookupTruckUsecase, this.mockCreateTrruckUsecase, this.mockStartInspectionUsecase );
 
     }
 
@@ -141,7 +160,7 @@ public class TrucksControllerTests {
 
         verify( this.mockCompleteInspectionUsecase ).execute( fakeId );
         verifyNoMoreInteractions( this.mockCompleteInspectionUsecase );
-        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockCreateTrruckUsecase, this.mockStartInspectionUsecase );
+        verifyNoInteractions( this.mockGetAllTrucksUsecase, this.mockLookupTruckUsecase, this.mockCreateTrruckUsecase, this.mockStartInspectionUsecase );
 
     }
 
